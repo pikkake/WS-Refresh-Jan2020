@@ -16,10 +16,16 @@ import os
 
 class wsRefresh:
   ##############################################################
-  APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.6"
+  APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.8"
   MIN_APP_WIDTH = 500
   MIN_APP_HEIGHT = 400  #420 for footer inclusion
-  bg_color = '#088E07 '
+  banner_color = '#3B4483 '
+  bg_theme = '#E1E1E1'
+  fg_theme = 'black'
+  button_bg = '#dedede'
+  button_fg = 'black'
+  button_active_bg = '#c9c9c9'
+  button_active_fg = 'black'
   employee_code = ""
   employee_initials = ""
   
@@ -67,22 +73,19 @@ class wsRefresh:
     
     self.initials = StringVar()
     self.emp_code = StringVar()
-      
-    
+
     self.createTraceStatements()
-    
-    
-    
+
     self.dim = "{}x{}".format(self.MIN_APP_WIDTH, self.MIN_APP_HEIGHT)
     self.root.geometry(self.dim)
     self.root.title(self.APP_TITLE)
     self.root.wm_attributes("-topmost",1)
     
-    self.WS_refresh_buttonBar = Frame(root, width = 600, height = 25, bg=self.bg_color)
+    self.WS_refresh_buttonBar = Frame(root, width = 600, height = 31, bg=self.banner_color)
     #Allows the frame to expand to the set width and height
     self.WS_refresh_buttonBar.grid_propagate(False)
     
-    self.WS_Center = Frame(root)
+    self.WS_Center = Frame(root, bg = self.bg_theme)
     self.WS_refresh_buttonBar.grid(sticky=E+W)
     self.WS_Center.grid(row=1, sticky='nsew')
     
@@ -90,19 +93,26 @@ class wsRefresh:
     self.WS_Bottom.grid_propagate(False)
     self.WS_Bottom.grid(row=2, sticky='w')
     
-    self.WS_refresh_form = Frame(self.WS_Center)
-    self.WS_refresh_textarea = Frame(self.WS_Center)
+    self.WS_refresh_form = Frame(self.WS_Center, bg = self.bg_theme)
+    self.WS_refresh_textarea = Frame(self.WS_Center, bg = self.bg_theme)
     self.WS_refresh_form.grid(column=0, row=0,padx = 5, pady = 10, sticky ='NW')
     self.WS_refresh_textarea.grid(column=1, row = 0, padx=15, pady=10, sticky='NW')
   
-    self.KDS_TS_Btn = Button(self.WS_refresh_buttonBar, text="KDS Timestamp", command = self.KDS_Changer_TS)
+    self.KDS_TS_Btn = Button(self.WS_refresh_buttonBar, text="KDS Timestamp", command = self.KDS_Changer_TS, bg = self.button_bg, fg = self.button_fg, activebackground=self.button_active_bg, activeforeground=self.button_active_fg)
     self.KDS_TS_Btn.grid(column=0, row=0, padx=10)
-    self.Comment_TS_Btn = Button(self.WS_refresh_buttonBar, text = "Comment Timestamp", command = self.comment_TS)
+    self.Comment_TS_Btn = Button(self.WS_refresh_buttonBar, text = "Comment Timestamp", command = self.comment_TS, bg = self.button_bg, fg = self.button_fg, activebackground=self.button_active_bg, activeforeground=self.button_active_fg)
     self.Comment_TS_Btn.grid(column=1, row=0)
-    self.release_Button = Button(self.WS_refresh_buttonBar, text = "Release Code", command = self.setReleaseCode)
-    self.release_Button.grid(column=2, row=0, padx=10)
-    self.clear_all = Button(self.WS_refresh_buttonBar, text="Clear All", command = self.clearForm)
-    self.clear_all.grid(column=4, row = 0, padx=93, sticky='E')
+    seperator = Frame(self.WS_refresh_buttonBar, width = 10)
+    seperator.grid_propagate(False)
+    seperator.grid(column = 2, padx=23)
+    
+    self.clearFrame = Frame(self.WS_refresh_buttonBar, bg = self.banner_color)
+    self.clearFrame.grid(column=3, row = 0, padx=15, sticky='nsew')
+    
+    self.clear_all = Button(self.clearFrame, text="Clear Only", command = self.clearForm, bg='#ebdb34', fg='#0d0d0c', activebackground='#ccbe2d', activeforeground='#0d0d0c')
+    self.clear_all.grid(column=0, row = 0, padx=18, sticky='E')
+    self.clear_all = Button(self.clearFrame, text="Clear & Log", command = self.clearAndLog, bg='#C1392B', fg='#F8F8F8', activebackground='#a3382a', activeforeground='#F8F8F8')
+    self.clear_all.grid(column=1, row = 0, padx=2, pady=3, sticky='E')
     
     self.createForm(self.WS_refresh_form)
     self.createTextBox(self.WS_refresh_textarea)
@@ -112,28 +122,28 @@ class wsRefresh:
     
     
   def createForm(self, root):
-    self.info = Frame(root)
-    self.ws_1 = Frame(root, pady=5)
-    self.ws_2 = Frame(root, pady=5)
-    self.ws_3= Frame(root, pady=5)
-    self.ws_4= Frame(root, pady=5)
+    self.info = Frame(root, bg = self.bg_theme)
+    self.ws_1 = Frame(root, pady=5, bg = self.bg_theme)
+    self.ws_2 = Frame(root, pady=5, bg = self.bg_theme)
+    self.ws_3= Frame(root, pady=5, bg = self.bg_theme)
+    self.ws_4= Frame(root, pady=5, bg = self.bg_theme)
     
     #Labels for the form
-    self.store_label = Label(self.info, text = "Store: ")
-    self.name_label = Label(self.info, text = "Name: ")
-    self.phone_label = Label(self.info, text = "Phone: ")
-    self.WS_label_1 = Label(self.ws_1, text = "WS-1: ")
-    self.oldMAC_label_1 = Label(self.ws_1, text = "Old MAC: ")
-    self.newMAC_label_1 = Label(self.ws_1, text = "New MAC: ")
-    self.WS_label_2 = Label(self.ws_2, text = "WS-2: ")
-    self.oldMAC_label_2 = Label(self.ws_2, text = "Old MAC: ")
-    self.newMAC_label_2 = Label(self.ws_2, text = "New MAC: ")
-    self.WS_label_3 = Label(self.ws_3, text = "WS-3: ")
-    self.oldMAC_label_3 = Label(self.ws_3, text = "Old MAC: ")
-    self.newMAC_label_3 = Label(self.ws_3, text = "New MAC: ")
-    self.WS_label_4 = Label(self.ws_4, text = "WS-4: ")
-    self.oldMAC_label_4 = Label(self.ws_4, text = "Old MAC: ")
-    self.newMAC_label_4 = Label(self.ws_4, text = "New MAC: ")
+    self.store_label = Label(self.info, text = "Store: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.name_label = Label(self.info, text = "Name: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.phone_label = Label(self.info, text = "Phone: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.WS_label_1 = Label(self.ws_1, text = "WS-1: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.oldMAC_label_1 = Label(self.ws_1, text = "Old MAC: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.newMAC_label_1 = Label(self.ws_1, text = "New MAC: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.WS_label_2 = Label(self.ws_2, text = "WS-2: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.oldMAC_label_2 = Label(self.ws_2, text = "Old MAC: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.newMAC_label_2 = Label(self.ws_2, text = "New MAC: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.WS_label_3 = Label(self.ws_3, text = "WS-3: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.oldMAC_label_3 = Label(self.ws_3, text = "Old MAC: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.newMAC_label_3 = Label(self.ws_3, text = "New MAC: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.WS_label_4 = Label(self.ws_4, text = "WS-4: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.oldMAC_label_4 = Label(self.ws_4, text = "Old MAC: ", bg = self.bg_theme, fg = self.fg_theme)
+    self.newMAC_label_4 = Label(self.ws_4, text = "New MAC: ", bg = self.bg_theme, fg = self.fg_theme)
     #Place labels into the grid
     
     
@@ -196,14 +206,16 @@ class wsRefresh:
     self.oldMAC_txtBox_4.grid(column=1,row=2, sticky="w")
     self.newMAC_txtBox_4.grid(column=1,row=3, sticky="w")
   def createTextBox(self, root):
-    self.entryBoxes = Frame(root)
-    self.textbox = Frame(root)
-    self.buttons = Frame(root)
-    self.identifiers = Frame(root)
+    self.entryBoxes = Frame(root, bg = self.bg_theme)
+    self.textbox = Frame(root, bg = self.bg_theme)
+    self.buttons = Frame(root, bg = self.bg_theme)
+    self.identifiers = Frame(root, bg = self.bg_theme)
       
     self.entryBoxes.grid(column=0,row=0, sticky='W')
     self.release_label = Label(self.entryBoxes, text="Release Code:")
-    self.release_label.grid(column=0, row=0, sticky="w")
+    #self.release_label.grid(column=0, row=0, sticky="w")
+    self.release_Button = Button(self.entryBoxes, text = "Release Code", command = self.setReleaseCode, bg = self.button_bg, fg = self.button_fg, activebackground=self.button_active_bg, activeforeground=self.button_active_fg)
+    self.release_Button.grid(column=0, row=0)
     self.release_entry = Entry(self.entryBoxes, width = 12, textvariable = self.release_code)
     self.release_entry.grid(column=1, row=0, padx=5)
     
@@ -212,17 +224,17 @@ class wsRefresh:
     self.txt.grid(column=0, row=0)
     
     self.buttons.grid(column=0,row=2)
-    self.copyTextBox = Button(self.buttons, text="Copy All", command = self.copyText)
-    self.copyTextBox.grid(column=1, row=0, sticky='E', padx=5)
-    self.formatOutput = Button(self.buttons, text="Format", command = self.formatOutput)
+    self.copyTextBox = Button(self.buttons, text="Copy All", command = self.copyText, bg = self.button_bg, fg = self.button_fg, activebackground=self.button_active_bg, activeforeground=self.button_active_fg)
+    self.copyTextBox.grid(column=2, row=0, sticky='E', padx=5)
+    self.formatOutput = Button(self.buttons, text="Format", command = self.formatOutput, bg = self.button_bg, fg = self.button_fg, activebackground=self.button_active_bg, activeforeground=self.button_active_fg)
     self.formatOutput.grid(column = 0, row = 0, padx=5)
-    self.logButton = Button(self.buttons, text="Log Call", command = self.logCall)
-    self.logButton.grid(column = 2, row = 0, padx=5)
+    self.logButton = Button(self.buttons, text="Log Call", command = self.logCall, bg = self.button_bg, fg = self.button_fg, activebackground=self.button_active_bg, activeforeground=self.button_active_fg)
+    self.logButton.grid(column = 1, row = 0, padx=5)
     
     self.identifiers.grid(column=0, row=3, sticky='w', pady=5)
-    self.initials_label = Label(self.identifiers, text="Initials:")
+    self.initials_label = Label(self.identifiers, text="Initials:", bg = self.bg_theme, fg = self.fg_theme)
     self.initials_entry = Entry(self.identifiers, width = 6, textvariable = self.initials)  
-    self.emp_code_label = Label(self.identifiers, text = "Emp Code:")
+    self.emp_code_label = Label(self.identifiers, text = "Emp Code:", bg = self.bg_theme, fg = self.fg_theme)
     self.emp_code_entry = Entry(self.identifiers, width = 6, textvariable = self.emp_code)
     
     self.initials_label.grid(column = 0, row = 0, sticky='w')
@@ -261,7 +273,10 @@ class wsRefresh:
       release = self.employee_code + strftime("%m%d", localtime()) + tmp
       self.release_entry.insert(0, release) 
       copy(release)
-    
+  def clearAndLog(self):
+    self.logCall()
+    self.clearForm()
+    pass
   def clearForm(self):
     self.store_txtBox.delete(0,'end')
     self.name_txtBox.delete(0,'end')
@@ -289,16 +304,14 @@ class wsRefresh:
     pass
   def logCall(self):
     path = "logs\\"
-    timestamp = strftime("20%y-%m-%d.txt", localtime())
+    timestamp = strftime("20%y-%m-%d.rtf", localtime())
     path+= timestamp
     try:
-
-      print(path)
-      f = open(path, 'a+')
-      f.write(self.txt.get('1.0', END))
-      f.close()
-   
-  
+      if len(self.txt.get('1.0',END)) > 1:
+        f = open(path, 'a+')
+        f.write(strftime("=== %m/%d/20%y %I:%M:%S %p ===\n",localtime()))
+        f.write(self.txt.get('1.0', END)+"\n")
+        f.close()
     except:
       pass
   def createLogTimestamp(self):
