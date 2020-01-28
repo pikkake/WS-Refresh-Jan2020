@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import scrolledtext
 from run import *
 from util import strip_input, clear
-from time import localtime, strftime
+from time import localtime, strftime, sleep
 from pyperclip import copy
 import os
 
@@ -18,7 +18,7 @@ class wsRefresh:
   ##############################################################
   APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.6"
   MIN_APP_WIDTH = 500
-  MIN_APP_HEIGHT = 400
+  MIN_APP_HEIGHT = 400  #420 for footer inclusion
   bg_color = '#088E07 '
   employee_code = ""
   employee_initials = ""
@@ -86,6 +86,10 @@ class wsRefresh:
     self.WS_refresh_buttonBar.grid(sticky=E+W)
     self.WS_Center.grid(row=1, sticky='nsew')
     
+    self.WS_Bottom = Frame(root, relief = SUNKEN, borderwidth=1, width = self.MIN_APP_WIDTH, height = 20)
+    self.WS_Bottom.grid_propagate(False)
+    self.WS_Bottom.grid(row=2, sticky='w')
+    
     self.WS_refresh_form = Frame(self.WS_Center)
     self.WS_refresh_textarea = Frame(self.WS_Center)
     self.WS_refresh_form.grid(column=0, row=0,padx = 5, pady = 10, sticky ='NW')
@@ -102,6 +106,9 @@ class wsRefresh:
     
     self.createForm(self.WS_refresh_form)
     self.createTextBox(self.WS_refresh_textarea)
+    
+    self.createFooter(self.WS_Bottom)
+    
     
     
   def createForm(self, root):
@@ -222,7 +229,16 @@ class wsRefresh:
     self.initials_entry.grid(column = 1, row = 0, sticky='w')
     self.emp_code_label.grid(column=0, row=1, sticky='w')
     self.emp_code_entry.grid(column=1, row=1, sticky='w')
-      
+  def createFooter(self, root):
+    self.footerFrame1 = Frame(root)
+    self.footerFrame1.grid(sticky='e')
+    
+    self.footerMsg = Label(self.footerFrame1)
+    self.footerMsg.grid(sticky='e')
+  """def alterFooter(self, msg):
+    self.footerMsg.config(text = msg)
+    sleep(5)
+    self.footerMsg.config(text = "")"""
   def copyText(self):
     copy(self.txt.get("1.0", END).strip())
   def setReleaseCode(self):
@@ -455,8 +471,11 @@ class wsRefresh:
       i+=1
       self.setReleaseCode()
   def KDS_Changer_TS(self):
+    #msg = "KDS Timestamp copied to clipboard"
     clipboard = self.employee_initials + " " + strftime("%I:%M%p", localtime())
     copy(clipboard)
+    
+    #self.alterFooter(msg)
   def comment_TS(self):
     clipboard = strftime("%m/%d @%I:%M%p ("+self.employee_initials+") ", localtime())
     copy(clipboard)
