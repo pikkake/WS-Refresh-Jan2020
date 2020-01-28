@@ -289,10 +289,16 @@ class wsRefresh:
     pass
   def logCall(self):
     path = "logs\\"
+    timestamp = strftime("20%y-%m-%d.txt", localtime())
+    path+= timestamp
     try:
-      if not os.path.isfile(""):
-    
-        pass
+
+      print(path)
+      f = open(path, 'a+')
+      f.write(self.txt.get('1.0', END))
+      f.close()
+   
+  
     except:
       pass
   def createLogTimestamp(self):
