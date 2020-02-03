@@ -16,7 +16,7 @@ import os
 
 class wsRefresh:
   ##############################################################
-  APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.8"
+  APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.81"
   MIN_APP_WIDTH = 500
   MIN_APP_HEIGHT = 400  #420 for footer inclusion
   banner_color = '#3B4483 '
@@ -253,7 +253,7 @@ class wsRefresh:
     self.footerMsg.config(text = "")"""
   def copyText(self):
     copy(self.txt.get("1.0", END).strip())
-  def setReleaseCode(self):
+  def setReleaseCode(self, cp = True):
     store_code = self.store_txtBox.get()
     if len(store_code) != 0:
       if len(store_code) == 1:
@@ -268,11 +268,11 @@ class wsRefresh:
         
       self.release_entry.delete(0,END)
       
-      print(self.emp_code)
       global employee_code
       release = self.employee_code + strftime("%m%d", localtime()) + tmp
       self.release_entry.insert(0, release) 
-      copy(release)
+      if cp == True:
+        copy(release)
   def clearAndLog(self):
     self.logCall()
     self.clearForm()
@@ -488,7 +488,7 @@ class wsRefresh:
         else:
           self.txt.insert(INSERT,"\n"+item)
       i+=1
-      self.setReleaseCode()
+      self.setReleaseCode(cp = False)
   def KDS_Changer_TS(self):
     #msg = "KDS Timestamp copied to clipboard"
     clipboard = self.employee_initials + " " + strftime("%I:%M%p", localtime())
