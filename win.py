@@ -3,6 +3,7 @@
 from tkinter import *
 from tkinter import scrolledtext
 from run import *
+from MenuBar import MenuBar
 from util import strip_input, clear
 from time import localtime, strftime, sleep
 from pyperclip import copy
@@ -51,7 +52,8 @@ class wsRefresh:
     
     self.root = root
     root.resizable(width = FALSE, height = FALSE)
-
+    self.menu = MenuBar(root)
+    
     #root.iconbitmap('ico/icon.ico')
     root.resizable(width = FALSE, height = FALSE)
     self.storeNum = StringVar()
