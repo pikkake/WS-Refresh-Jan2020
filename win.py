@@ -52,7 +52,7 @@ class wsRefresh:
     
     self.root = root
     root.resizable(width = FALSE, height = FALSE)
-    self.menu = MenuBar(root)
+    #self.menu = MenuBar(root)
     
     #root.iconbitmap('ico/icon.ico')
     root.resizable(width = FALSE, height = FALSE)
