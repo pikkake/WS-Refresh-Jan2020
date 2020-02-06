@@ -1,50 +1,63 @@
 # -*- coding: utf-8 -*-
 import tkinter as tk
-from pyperclip import copy
-from time import strftime, localtime
+#from pyperclip import copy
+#from time import strftime, localtime
 
 class MenuBar:
+  ###############################################
   employee_initials = "CR"
+  size_of_menu_separator = 141
+  SETTINGS_HEIGHT = 100
+  SETTINGS_WIDTH = 100
+  
+  
+  ###############################################
   
   def __init__(self, root):
     
-    
-    self.createMenu(root)
-    pass
-  
+    root.bind('<Motion>', self.motion)
+    self.menuBar = tk.Menu(root)
+    self.createMenu(root)  
   
   def createMenu(self, root):
-    self.menubar = tk.Menu(root)
-    self.menubar.add_command(label="KDS Timestamp", command=self.KDS_Changer_TS)
+    settingSpacing = ''
+    i = 0
     
-    self.menubar.add_command(label="Commept Timestamp", command=self.comment_TS)
-    self.multipleMenuSeparator()
-    self.menubar.add_command(label="Settings", command=self.null)
-    root.config(menu=self.menubar)
+    while i < self.size_of_menu_separator:
+      settingSpacing+=" "
+      i+=1
+      
+    self.menuBar.add_command(label=settingSpacing, state = "disabled")
+    self.menuBar.add_command(label="Settings", command=lambda: self.openSettings(root))
+    self.createSettingsMenu(root)
+    
+    #Add menu to root/the main window
+    root.config(menu=self.menuBar)
   pass
-  def null(self):
-    pass
-  def KDS_Changer_TS(self):
-    #msg = "KDS Timestamp copied to clipboard"
-    clipboard = self.employee_initials + " " + strftime("%I:%M%p", localtime())
-    copy(clipboard)
+  def createSettingsMenu(self, root):
+    self.settings = tk.Toplevel(root)
+    self.settings.protocol("WM_DELETE_WINDOW", self.settings.withdraw)
+    self.settings.resizable(width = tk.FALSE, height = tk.FALSE)
+    self.settings_dim = "{}x{}".format(self.SETTINGS_WIDTH, self.SETTINGS_HEIGHT)
+    self.settings.geometry(self.settings_dim)
+    self.settings.wm_attributes("-topmost",2)
     
-    #self.alterFooter(msg)
-  def comment_TS(self):
-    clipboard = strftime("%m/%d @%I:%M%p ("+self.employee_initials+") ", localtime())
-    copy(clipboard)
-  def multipleMenuSeparator(self):
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
-    self.menubar.add_separator()
+    display = tk.Label(self.settings,text = "Test")
+    display.grid()  
+    self.settings.withdraw()
+    
+  def openSettings(self, root):
+    self.settings.geometry()
+    self.settings.deiconify()
+    
+  def motion(self, event):
+    global x_cord
+    global y_cord
+    x_cord, y_cord = event.x, event.y
+    
+  def null(self):
+    """
+    Empty function for his and/or her pleasure.
+    """
+    pass
+  
