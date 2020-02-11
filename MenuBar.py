@@ -4,17 +4,25 @@ import tkinter as tk
 #from time import strftime, localtime
 
 class MenuBar:
+  
+  """
+  Requires a main window with dimensions 500x400px.  
+  IF changing dimensions, edit the 'size_of_menu' parameter
+  
+  """
   ###############################################
   employee_initials = "CR"    #Initials of the employee
-  size_of_menu_separator = 141
+  
   SETTINGS_HEIGHT = 400       #Height of the settings window
   SETTINGS_WIDTH = 350        #Width of the settings window
   
-
+  size_of_menu_separator = 141  #Space that pushes the settings button to the right
   settings_menu_x_offset = 115  #Offset from the top left corner of the main window
   settings_menu_y_offset = 25
   
   settings_State = False        #Boolean handling if Settings is open
+  
+  list_Of_Setting_Frames = {}
   
   ###############################################
   
@@ -51,7 +59,6 @@ class MenuBar:
     form_coordinates = (1,0)
     panel_options = [
         "User",
-        "NULL",
         "NULL"
         ]
     ############
@@ -102,10 +109,14 @@ class MenuBar:
     
     
   def createIndividual_Setting_Frames(self, root):
+
     user = user_Settings(root)
-    null_Settings_TEST(root)
+    null = null_Settings_TEST(root)
     
-    user.mountFrame()
+    self.list_Of_Setting_Frames = {
+        "User": user,
+        "NULL": null
+        }
   def openSettings(self):
     """
     Creates a settings menu and places it on the screen using the winfo of self.root & an offset.
@@ -149,7 +160,12 @@ class MenuBar:
     item = event.widget
     index = (int(item.curselection()[0]))
     value = item.get(index)
-    print("%d: %s", index, value)
+    
+    for setting_frame in self.list_Of_Setting_Frames:
+      if setting_frame == value:
+        self.list_Of_Setting_Frames[setting_frame].mountFrame()
+      else:
+        self.list_Of_Setting_Frames[setting_frame].unmountFrame()
     
   def motion(self, event):
     global x_cord
@@ -165,12 +181,12 @@ class MenuBar:
   ##### Baseline functions for settings ######
 class base_settings:
   def __init__(self, root):
-    self.master = tk.LabelFrame(root)
+    self.master = tk.Frame(root)
     self.form = tk.Frame(self.master)
-    self.form.grid(sticky = "nsew")
+    self.form.grid(sticky = "nsew", padx = 8, pady=8)
     
   def unmountFrame(self):
-    self.master.remove()
+    self.master.grid_forget()
   def mountFrame(self):
     self.master.grid()
   #############################################
@@ -180,27 +196,35 @@ class base_settings:
 class user_Settings(base_settings):
   def __init__(self, root):
     super().__init__(root)
-    
     ############################
     
     
     self.initials = tk.StringVar()
+    self.employeeNum = tk.StringVar()
     ############################
+    
+    
     
     self.createForm()
     
   def createForm(self):
     initials_label = tk.Label(self.form, text = "Initials")
     initials_textbox = tk.Entry(self.form, width=5, textvariable= self.initials)
-    initials_label.grid(column=0, row=0)
-    initials_textbox.grid(column=1, row=0)
-    
+    emp_label = tk.Label(self.form, text = "Employee Number")
+    emp_textbox = tk.Entry(self.form, width = 5, textvariable = self.employeeNum)
+    initials_label.grid(column=0, row=0, sticky = 'w')
+    initials_textbox.grid(column=1, row=0, sticky = 'w')
+    emp_label.grid(column=0, row=1)
+    emp_textbox.grid(column=1,row=1)
     
     
     
 class null_Settings_TEST(base_settings):
-  def __init(self, root):
+  def __init__(self, root):
     super().__init__(root)    
+    test = tk.Label(self.form, text = "Null Setting")
+    test.grid()
+    
     
   
   
