@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import tkinter as tk
+import etc.setting_Data as sd
 #from pyperclip import copy
 #from time import strftime, localtime
 
@@ -29,6 +30,8 @@ class MenuBar:
   def __init__(self, root):
     self.root = root
     
+    self.config = sd.setting_Data()
+        
     root.bind('<Motion>', self.motion)
     self.menuBar = tk.Menu(self.root)
     self.createMenuBar()  
@@ -110,12 +113,12 @@ class MenuBar:
     
   def createIndividual_Setting_Frames(self, root):
 
-    user = user_Settings(root)
-    null = null_Settings_TEST(root)
+    user_Frame = user_Settings(root, self.config)
+    null_Frame = null_Settings_TEST(root, self.config)
     
     self.list_Of_Setting_Frames = {
-        "User": user,
-        "NULL": null
+        "User": user_Frame,
+        "NULL": null_Frame
         }
   def openSettings(self):
     """
@@ -180,7 +183,10 @@ class MenuBar:
   
   ##### Baseline functions for settings ######
 class base_settings:
-  def __init__(self, root):
+  def __init__(self, root, config):
+    self.config = config
+    self.setting_Attribute = ""
+        
     self.master = tk.Frame(root)
     self.form = tk.Frame(self.master)
     self.form.grid(sticky = "nsew", padx = 8, pady=8)
@@ -189,39 +195,50 @@ class base_settings:
     self.master.grid_forget()
   def mountFrame(self):
     self.master.grid()
+  def save_Settings(self):
+    raw_JSON = self.config.return_Raw_Settings()
+    self.config.write_Settings(self.setting_Attribute, self.user_data, raw_JSON)
   #############################################
   
   ##### Setting Item: User ######
   
 class user_Settings(base_settings):
-  def __init__(self, root):
-    super().__init__(root)
+  def __init__(self, root, config):
+    super().__init__(root, config)
     ############################
     
+    self.setting_Attribute = "User" #name of the setting
+    self.user_data = self.config.return_Specified_Setting(self.setting_Attribute)
     
     self.initials = tk.StringVar()
     self.employeeNum = tk.StringVar()
     ############################
     
-    
-    
     self.createForm()
     
   def createForm(self):
     initials_label = tk.Label(self.form, text = "Initials")
-    initials_textbox = tk.Entry(self.form, width=5, textvariable= self.initials)
+    self.initials_textbox = tk.Entry(self.form, width=5, textvariable= self.initials)
     emp_label = tk.Label(self.form, text = "Employee Number")
-    emp_textbox = tk.Entry(self.form, width = 5, textvariable = self.employeeNum)
+    self.emp_textbox = tk.Entry(self.form, width = 5, textvariable = self.employeeNum)
     initials_label.grid(column=0, row=0, sticky = 'w')
-    initials_textbox.grid(column=1, row=0, sticky = 'w')
+    self.initials_textbox.grid(column=1, row=0, sticky = 'w')
     emp_label.grid(column=0, row=1)
-    emp_textbox.grid(column=1,row=1)
+    self.emp_textbox.grid(column=1,row=1)
+  
+    self.initials.set(self.user_data['Initials'])
+    self.employeeNum.set(self.user_data['Emp_Num'])
+    
+  def getValues(self):
+    self.initials_textbox.get()
+    self.emp_textbox.get()
+    
     
     
     
 class null_Settings_TEST(base_settings):
-  def __init__(self, root):
-    super().__init__(root)    
+  def __init__(self, root, config):
+    super().__init__(root, config)    
     test = tk.Label(self.form, text = "Null Setting")
     test.grid()
     

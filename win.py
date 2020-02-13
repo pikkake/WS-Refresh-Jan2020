@@ -4,8 +4,7 @@ from tkinter import *
 from tkinter import scrolledtext
 from run import *
 from MenuBar import MenuBar
-from util import strip_input, clear
-from time import localtime, strftime, sleep
+from time import localtime, strftime
 from pyperclip import copy
 import os
 
@@ -317,6 +316,9 @@ class wsRefresh:
     
     pass
   def logCall(self):
+    if not os.path.exists('logs'):
+      os.mkdir('logs')
+    
     path = "logs\\"
     timestamp = strftime("20%y-%m-%d.rtf", localtime())
     path+= timestamp
