@@ -1,5 +1,6 @@
 import os
 from util import openJSON, writeJSON
+import etc.WS_Esign as ws
 
 class setting_Data:
   """
@@ -10,6 +11,7 @@ class setting_Data:
   path = "config\\config.json"
   JSON = {}
   User = {}
+  reset = ws.WS_Esign() #Replace with any other module that creates a dict for settings.
   
   def __init__(self, file_stream = "config\\config.json"):
 
@@ -18,7 +20,6 @@ class setting_Data:
     try:
       if not os.path.isfile(file_stream):
         self.resetSettings()   
-        self.write()
       else:
         self.JSON = openJSON(file_stream)
         self.path = file_stream
@@ -26,24 +27,24 @@ class setting_Data:
 
   
   def resetSettings(self):
-    self.User = {
-      "Name":"",
-      "Initials":"",
-      "Emp_Num": 0
-      
-      }
     
-    self.JSON['User'] = self.User
-  ###EDIT THIS LATER
-  def write(self):
-    self.JSON['User'] = self.User
+    self.JSON = self.reset.returnMaster()
     writeJSON(self.JSON, self.path)
+    
   def return_Specified_Setting(self, setting_Name):
     return self.JSON[setting_Name]
   def return_Raw_Settings(self):
     return self.JSON
-  def write_Settings(self, setting_Label, raw_Buffer, master_JSON):
-    master_JSON[setting_Label] = raw_Buffer
-    writeJSON(master_JSON, self.path)
+  def return_List_Of_Keys(self):
+    keys = []
+    for setting in self.JSON:
+      keys.append(setting)
+      
+    return keys
+  def write_Specified_Setting(self, setting_Label, raw_Buffer):
+    self.JSON[setting_Label] = raw_Buffer
+    writeJSON(self.JSON, self.path)
+  def write_All_Settings(self, raw_Buffer):
+    writeJSON(raw_Buffer, self.path)
   def printJSON(self):
     print(self.JSON)
