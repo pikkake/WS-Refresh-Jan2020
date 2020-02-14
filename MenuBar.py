@@ -248,7 +248,8 @@ class all_Settings:
   def save_All(self): #TO DO
     master = self.config.return_Raw_Settings()
     for setting in self.dict_Of_Setting_Frames:
-      pass
+      tmp = self.dict_Of_Setting_Frames[setting]
+      tmp.create_Dict_Of_Form_Values()
   
   ##### Baseline functions for settings ######
 class base_settings:
@@ -265,6 +266,13 @@ class base_settings:
     self.master.grid_forget()
   def mountFrame(self):
     self.master.grid()
+  def create_Dict_Of_Form_Values(self, **args):
+    for setting_Name in self.user_data:
+      print(setting_Name) #debugging
+      for item_to_grab in args:
+        print(item_to_grab)
+      
+      #for list_
   def save_Settings(self):
     self.config.write_Specified_Setting(self.setting_Attribute, self.user_data)
   #############################################
@@ -287,16 +295,30 @@ class user_Settings(base_settings):
     
   def createForm(self):
     initials_label = tk.Label(self.form, text = "Initials")
-    self.initials_textbox = tk.Entry(self.form, width=5, textvariable= self.initials)
+    self.initials_textbox = tk.Entry(self.form, width=5, textvariable= self.initials, name ="initials")
     emp_label = tk.Label(self.form, text = "Employee Number")
-    self.emp_textbox = tk.Entry(self.form, width = 5, textvariable = self.employeeNum)
+    self.emp_textbox = tk.Entry(self.form, width = 5, textvariable = self.employeeNum, name = 'emp_num')
     initials_label.grid(column=0, row=0, sticky = 'w')
     self.initials_textbox.grid(column=1, row=0, sticky = 'w')
     emp_label.grid(column=0, row=1)
     self.emp_textbox.grid(column=1,row=1)
   
     self.populateFields()
+    self.create_List_Of_Entries(self.initials_textbox, "test")
+    """
+    -Split the name of the entry widget using '.' delimiter.
+    -Take key value of key.lower() and match it against a list of split entry widget names.
+    -Create a dict using the format: 'key.title()' : entry_Widget.get()
+    -Put this function into the parent class.
+    -Goal is to create a dict of 'User' settings and return it.
+    -This will apply to all user data to help manage the logic of future endeavors.
     
+    
+    
+    """
+  def create_List_Of_Entries(self, *args):
+    name = self.initials_textbox
+    print(str(name))
   def populateFields(self):
     items = self.user_data
     self.initials.set(items['Initials'])
@@ -306,7 +328,14 @@ class user_Settings(base_settings):
 class null_Settings_TEST(base_settings):
   def __init__(self, root, config):
     super().__init__(root, config)    
+    ############################
+    
+    self.setting_Attribute = "NULL" #name of the setting
+    self.user_data = self.config.return_Specified_Setting(self.setting_Attribute)
+    
+    ############################
     test = tk.Label(self.form, text = "Placeholder for debugging")
+    
     test.grid()
     
     
