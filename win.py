@@ -4,8 +4,7 @@ from tkinter import *
 from tkinter import scrolledtext
 from run import *
 from MenuBar import MenuBar
-from util import strip_input, clear
-from time import localtime, strftime, sleep
+from time import localtime, strftime
 from pyperclip import copy
 import os
 
@@ -17,7 +16,7 @@ import os
 
 class wsRefresh:
   ##############################################################
-  APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.81"
+  APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.95"
   MIN_APP_WIDTH = 500
   MIN_APP_HEIGHT = 400  #420 for footer inclusion
   banner_color = '#3B4483 '
@@ -52,7 +51,11 @@ class wsRefresh:
     
     self.root = root
     root.resizable(width = FALSE, height = FALSE)
+    
     self.menu = MenuBar(root)
+    self.config = self.menu.return_Settings()
+    self.employee_initials = self.config['User']['Initials']
+    self.employee_code = self.config['User']['Emp_Num']
     
     #root.iconbitmap('ico/icon.ico')
     root.resizable(width = FALSE, height = FALSE)
@@ -190,6 +193,7 @@ class wsRefresh:
     self.oldMAC_txtBox_4 = Entry(self.ws_4, width=18, textvariable= self.oldMAC_4)
     self.newMAC_txtBox_4= Entry(self.ws_4, width=18, textvariable= self.newMAC_4)
     
+
     #Place entries on the grid
     self.store_txtBox.grid(column=1, row=0, sticky="w")
     self.name_txtBox.grid(column=1,row=1, sticky="w")
@@ -233,26 +237,12 @@ class wsRefresh:
     self.logButton = Button(self.buttons, text="Log Call", command = self.logCall, bg = self.button_bg, fg = self.button_fg, activebackground=self.button_active_bg, activeforeground=self.button_active_fg)
     self.logButton.grid(column = 1, row = 0, padx=5)
     
-    self.identifiers.grid(column=0, row=3, sticky='w', pady=5)
-    self.initials_label = Label(self.identifiers, text="Initials:", bg = self.bg_theme, fg = self.fg_theme)
-    self.initials_entry = Entry(self.identifiers, width = 6, textvariable = self.initials)  
-    self.emp_code_label = Label(self.identifiers, text = "Emp Code:", bg = self.bg_theme, fg = self.fg_theme)
-    self.emp_code_entry = Entry(self.identifiers, width = 6, textvariable = self.emp_code)
-    
-    self.initials_label.grid(column = 0, row = 0, sticky='w')
-    self.initials_entry.grid(column = 1, row = 0, sticky='w')
-    self.emp_code_label.grid(column=0, row=1, sticky='w')
-    self.emp_code_entry.grid(column=1, row=1, sticky='w')
   def createFooter(self, root):
     self.footerFrame1 = Frame(root)
     self.footerFrame1.grid(sticky='e')
     
     self.footerMsg = Label(self.footerFrame1)
     self.footerMsg.grid(sticky='e')
-  """def alterFooter(self, msg):
-    self.footerMsg.config(text = msg)
-    sleep(5)
-    self.footerMsg.config(text = "")"""
   def copyText(self):
     copy(self.txt.get("1.0", END).strip())
   def setReleaseCode(self, cp = True):
@@ -275,6 +265,7 @@ class wsRefresh:
       self.release_entry.insert(0, release) 
       if cp == True:
         copy(release)
+        
   def clearAndLog(self):
     self.logCall()
     self.clearForm()
@@ -305,6 +296,9 @@ class wsRefresh:
     
     pass
   def logCall(self):
+    if not os.path.exists('logs'):
+      os.mkdir('logs')
+    
     path = "logs\\"
     timestamp = strftime("20%y-%m-%d.rtf", localtime())
     path+= timestamp
@@ -392,6 +386,8 @@ class wsRefresh:
     self.outputDict["Workstations"][0]["WS-"] = self.s_WS_one
     if self.s_WS_one != "":
       self.output_string[3] = "WS-"+ self.s_WS_one
+    else:
+      self.output_string[3] = ''
   def setOld_MAC_one(self, *args):
     self.s_oldMAC_one = self.oldMAC_1.get().upper().strip()
     self.outputDict["Workstations"][0]["Old: "] = self.s_oldMAC_one
@@ -406,6 +402,8 @@ class wsRefresh:
     self.outputDict["Workstations"][1]["WS-"] = self.s_WS_two
     if self.s_WS_two != "":
       self.output_string[6] = "WS-"+ self.s_WS_two
+    else:
+      self.output_string[6] = ''  
   def setOld_MAC_two(self, *args):
     self.s_oldMAC_two = self.oldMAC_2.get().upper().strip()
     self.outputDict["Workstations"][1]["Old: "] = self.s_oldMAC_two
@@ -420,6 +418,8 @@ class wsRefresh:
     self.outputDict["Workstations"][2]["WS-"] = self.s_WS_three
     if self.s_WS_three != "":
       self.output_string[9] = "WS-"+ self.s_WS_three
+    else:
+      self.output_string[9] = ''
   def setOld_MAC_three(self, *args):
     self.s_oldMAC_three = self.oldMAC_3.get().upper().strip()
     self.outputDict["Workstations"][2]["Old: "] = self.s_oldMAC_three
@@ -434,6 +434,8 @@ class wsRefresh:
     self.outputDict["Workstations"][3]["WS-"] = self.s_WS_four
     if self.s_WS_four != "":
       self.output_string[12] = "WS-"+ self.s_WS_four
+    else:
+      self.output_string[12] = ''
   def setOld_MAC_four(self, *args):
     self.s_oldMAC_four = self.oldMAC_4.get().upper().strip()
     self.outputDict["Workstations"][3]["Old: "] = self.s_oldMAC_four
@@ -500,6 +502,15 @@ class wsRefresh:
   def comment_TS(self):
     clipboard = strftime("%m/%d @%I:%M%p ("+self.employee_initials+") ", localtime())
     copy(clipboard)
+  def createFormRightClick(self, name = "", form_var = ""):
+    self.formRightClick = Menu(self.root, tearoff = 0)
+    self.formRightClick.add_command(label = name)
+    
+  def formRightClick_popup(self,event, var = ""):
+    try:
+      self.formRightClick.tk_popup(event.x_root,event.y_root, 0)
+    finally:
+      self.formRightClick.grab_release()
 if __name__ == "__main__":
   
   root = Tk()
