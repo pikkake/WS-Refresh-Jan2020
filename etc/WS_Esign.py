@@ -8,7 +8,7 @@ class WS_Esign:
       "Emp_Num": 0    
     }
     null = {
-        "Null Value":"Nothing"
+        "Null_Value":"Nothing"
         }
     self.master = {
      'User':user,

@@ -16,7 +16,7 @@ import os
 
 class wsRefresh:
   ##############################################################
-  APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.81"
+  APP_TITLE = "Jan 2020 WS Refresh Call Formatter v0.95"
   MIN_APP_WIDTH = 500
   MIN_APP_HEIGHT = 400  #420 for footer inclusion
   banner_color = '#3B4483 '
@@ -51,7 +51,11 @@ class wsRefresh:
     
     self.root = root
     root.resizable(width = FALSE, height = FALSE)
+    
     self.menu = MenuBar(root)
+    self.config = self.menu.return_Settings()
+    self.employee_initials = self.config['User']['Initials']
+    self.employee_code = self.config['User']['Emp_Num']
     
     #root.iconbitmap('ico/icon.ico')
     root.resizable(width = FALSE, height = FALSE)
@@ -189,22 +193,7 @@ class wsRefresh:
     self.oldMAC_txtBox_4 = Entry(self.ws_4, width=18, textvariable= self.oldMAC_4)
     self.newMAC_txtBox_4= Entry(self.ws_4, width=18, textvariable= self.newMAC_4)
     
-    """
-    To do later:
-      Concept for building a responsive right click menu unique to each text field.
-    WS_TextBox_List = [
-       self.WS_txtBox_1,
-       self.oldMAC_txtBox_1,
-       
-       self.WS_txtBox_2,
-       self.WS_txtBox_3 ,
-       self.WS_txtBox_4
-        ]
-    
-    self.createFormRightClick("WS 1", self.WS_1)
-    self.WS_txtBox_1.bind("<Button-3>", self.formRightClick_popup)
-    
-    """
+
     #Place entries on the grid
     self.store_txtBox.grid(column=1, row=0, sticky="w")
     self.name_txtBox.grid(column=1,row=1, sticky="w")
@@ -248,16 +237,6 @@ class wsRefresh:
     self.logButton = Button(self.buttons, text="Log Call", command = self.logCall, bg = self.button_bg, fg = self.button_fg, activebackground=self.button_active_bg, activeforeground=self.button_active_fg)
     self.logButton.grid(column = 1, row = 0, padx=5)
     
-    self.identifiers.grid(column=0, row=3, sticky='w', pady=5)
-    self.initials_label = Label(self.identifiers, text="Initials:", bg = self.bg_theme, fg = self.fg_theme)
-    self.initials_entry = Entry(self.identifiers, width = 6, textvariable = self.initials)  
-    self.emp_code_label = Label(self.identifiers, text = "Emp Code:", bg = self.bg_theme, fg = self.fg_theme)
-    self.emp_code_entry = Entry(self.identifiers, width = 6, textvariable = self.emp_code)
-    
-    self.initials_label.grid(column = 0, row = 0, sticky='w')
-    self.initials_entry.grid(column = 1, row = 0, sticky='w')
-    self.emp_code_label.grid(column=0, row=1, sticky='w')
-    self.emp_code_entry.grid(column=1, row=1, sticky='w')
   def createFooter(self, root):
     self.footerFrame1 = Frame(root)
     self.footerFrame1.grid(sticky='e')
@@ -286,6 +265,7 @@ class wsRefresh:
       self.release_entry.insert(0, release) 
       if cp == True:
         copy(release)
+        
   def clearAndLog(self):
     self.logCall()
     self.clearForm()

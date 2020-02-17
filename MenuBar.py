@@ -127,18 +127,25 @@ class MenuBar:
     
     list_Of_Setting_Frames stores the dict returned by grouped_Settings.
     """
-    self.grouped_Settings = all_Settings(root, self.config)
+    
+    master = self.settings_Window #master window of the Settings object.
+    
+    self.grouped_Settings = all_Settings(master, root, self.config)
     self.list_Of_Setting_Frames = self.grouped_Settings.return_Settings_Dict()
     
   def createButtonFrame(self, root):
-    button_Frame = tk.Frame(root, width=self.SETTINGS_WIDTH)
-    button_Frame.grid(column=0, row=0)
+    button_Frame = tk.Frame(root, width=self.SETTINGS_WIDTH/2)
+    button_Frame.grid(column=1, row=0)
+    separator = tk.Frame(root, width = 180)
+    separator.grid(column=0, row = 0)
+    save = tk.Button(button_Frame, text = 'Save', command= self.closeAndSave)
+    apply = tk.Button(button_Frame, text="Apply", command= self.grouped_Settings.save_All)
+    close = tk.Button(button_Frame, text = 'Close', command = self.closeSettings)
     
-    self.apply = tk.Button(button_Frame, text="Apply", command= self.grouped_Settings.save_All)
     
-    
-    self.apply.grid()
-    
+    save.grid(column = 0, row = 0, sticky = 'nsew', padx = 7)
+    apply.grid(column = 1, row = 0, sticky = 'nsew', padx = 7)
+    close.grid(column = 2, row = 0, sticky = 'nsew', padx = 7)
     pass
   def openSettings(self):
     """
@@ -153,32 +160,36 @@ class MenuBar:
     
     #######################
     if not self.settings_State:  #if settings_State is False/ Window isn't opened
-      self.settings = tk.Toplevel(self.root)
-      self.settings.protocol("WM_DELETE_WINDOW", self.closeSettings)
-      self.settings.resizable(width = tk.FALSE, height = tk.FALSE)
+      self.settings_Window = tk.Toplevel(self.root)
+      self.settings_Window.protocol("WM_DELETE_WINDOW", self.closeSettings)
+      self.settings_Window.resizable(width = tk.FALSE, height = tk.FALSE)
       
       
       x_offset += self.root.winfo_x()
       y_offset += self.root.winfo_y()
       
       settings_dim = "{}x{}+{}+{}".format(self.SETTINGS_WIDTH, self.SETTINGS_HEIGHT, x_offset, y_offset)
-      self.settings.geometry(settings_dim)
-      self.settings.wm_attributes("-topmost",2)
+      self.settings_Window.geometry(settings_dim)
+      self.settings_Window.wm_attributes("-topmost",2)
       
-      self.createSettingsMenu(self.settings)
+      self.createSettingsMenu(self.settings_Window)
       
-      self.setActive(self.settings)
+      self.setActive(self.settings_Window)
       
   def closeSettings(self):
-    self.settings.destroy()
+    self.settings_Window.destroy()
     self.settings_State = False
-    
+  def closeAndSave(self):
+    self.grouped_Settings.save_All()
+    self.settings_Window.destroy()
+    self.settings_State = False
   def setActive(self, root):
     root.lift()
     root.grab_set()
     root.focus_set()
     self.settings_State = True
-    
+  def return_Settings(self):
+    return self.config.return_Raw_Settings()
   def listboxSelect(self, event):
     item = event.widget
     try:
@@ -191,27 +202,22 @@ class MenuBar:
         else:
           self.list_Of_Setting_Frames[setting_frame].unmountFrame()
     except:
-      pass
+      print("Frame '"+value+"' was not found!")
     
   def motion(self, event):
     global x_cord
     global y_cord
     x_cord, y_cord = event.x, event.y
     
-  def null(self):
-    """
-    Empty function for his and/or her pleasure.
-    """
-    pass
-  
+
 class all_Settings:
-  def __init__(self, root, configuration_File):
+  def __init__(self, master, root, configuration_File):
     """
     all_Settings stores all setting Objects within itself.  Used to call the list of setting Objects and
     write to each object.  Essentially handles the load of object handling away from the main settings Class.
     
     """
-    
+    self.master = master
     #Settings are created and stored in local variables.  Class initializations are handled below.
     user_Frame = user_Settings(root, configuration_File)
     null_Frame = null_Settings_TEST(root, configuration_File)
@@ -235,10 +241,13 @@ class all_Settings:
     #Settings listed within list_of_Settings MUST MATCH the list of returned keys perfectly.
     
     for setting_Label in self.config.return_List_Of_Keys():
-      tmp = {setting_Label: list_of_Settings[i]}
-      self.dict_Of_Setting_Frames.update(tmp)
-      i+=1
-      
+      try:
+        tmp = {setting_Label: list_of_Settings[i]}
+        self.dict_Of_Setting_Frames.update(tmp)        
+      except IndexError as e:
+        print("Too many keys returned from 'self.config.return_List_Of_Keys()'\n" +setting_Label+" not created." )
+      finally:
+        i+=1
 
   def return_Settings_Dict(self):
     """
@@ -246,17 +255,39 @@ class all_Settings:
     """
     return self.dict_Of_Setting_Frames
   def save_All(self): #TO DO
-    master = self.config.return_Raw_Settings()
+    """
+    Creates a JSON dict from the self.config object.
+    Pulls a dict of Widgets created by each setting object.
+    Cycles through each setting Object's config files, matches the name of the specified setting with
+    the name of the widget.  Saves that specific setting to the final JSON dict.
+    Dict is saves via write_All_Settings()
+    """
+    final = self.config.return_Raw_Settings()
+    
     for setting in self.dict_Of_Setting_Frames:
       tmp = self.dict_Of_Setting_Frames[setting]
-      tmp.create_Dict_Of_Form_Values()
-  
+      widget_Dict = tmp.return_dict_Of_Widgets()
+      setting_Data = tmp.setting_data
+            
+      for selected_Data in setting_Data:
+        
+        for widget in widget_Dict:
+          if selected_Data == widget:
+            final[setting][selected_Data] = widget_Dict[widget].get()
+      
+      self.config.write_All_Settings(final)
+  def save_And_Close(self):
+    self.save_All()
+    self.master.destroy()
+    
+    
   ##### Baseline functions for settings ######
 class base_settings:
   def __init__(self, root, config):
     self.config = config
     self.setting_Attribute = ""
-    self.user_data = {}
+    self.setting_data = {}
+    self.dict_Of_Widgets = {}
         
     self.master = tk.Frame(root)
     self.form = tk.Frame(self.master)
@@ -266,15 +297,27 @@ class base_settings:
     self.master.grid_forget()
   def mountFrame(self):
     self.master.grid()
-  def create_Dict_Of_Form_Values(self, **args):
-    for setting_Name in self.user_data:
-      print(setting_Name) #debugging
-      for item_to_grab in args:
-        print(item_to_grab)
-      
-      #for list_
+  def create_Dict_Of_Widgets(self, *args):
+    """
+    Takes widgets (Entry, etc.) in *args and assigns it to a dictionary based on the name of the widget.
+    This will ONLY assign widgets if the widget name is == to the setting_Name.lower()
+    
+    """
+    
+    data = self.setting_data
+    for setting_Name in data: 
+      #print(setting_Name) #debugging
+      for selected_Widget in args:
+        tmp_Array = str(selected_Widget).split('.')
+        tmp = tmp_Array[-1]
+        if setting_Name.lower() == tmp:
+          tmp_Dict = {setting_Name: selected_Widget}
+          self.dict_Of_Widgets.update(tmp_Dict)  
+
+  def return_dict_Of_Widgets(self):
+    return self.dict_Of_Widgets
   def save_Settings(self):
-    self.config.write_Specified_Setting(self.setting_Attribute, self.user_data)
+    self.config.write_Specified_Setting(self.setting_Attribute, self.setting_data)
   #############################################
   
   ##### Setting Item: User ######
@@ -285,44 +328,39 @@ class user_Settings(base_settings):
     ############################
     
     self.setting_Attribute = "User" #name of the setting
-    self.user_data = self.config.return_Specified_Setting(self.setting_Attribute)
+    self.setting_data = self.config.return_Specified_Setting(self.setting_Attribute)
     
     self.initials = tk.StringVar()
     self.employeeNum = tk.StringVar()
+    self.name = tk.StringVar()
     ############################
     
     self.createForm()
+    self.create_Dict_Of_Widgets(self.initials_textbox, self.emp_textbox, self.name_Textbox)
     
   def createForm(self):
+    name_Label = tk.Label(self.form, text = "Name")
+    self.name_Textbox = tk.Entry(self.form, width=10, textvariable= self.name, name ="name")
     initials_label = tk.Label(self.form, text = "Initials")
     self.initials_textbox = tk.Entry(self.form, width=5, textvariable= self.initials, name ="initials")
     emp_label = tk.Label(self.form, text = "Employee Number")
     self.emp_textbox = tk.Entry(self.form, width = 5, textvariable = self.employeeNum, name = 'emp_num')
     initials_label.grid(column=0, row=0, sticky = 'w')
     self.initials_textbox.grid(column=1, row=0, sticky = 'w')
-    emp_label.grid(column=0, row=1)
-    self.emp_textbox.grid(column=1,row=1)
-  
+    emp_label.grid(column=0, row=1, sticky = 'w')
+    self.emp_textbox.grid(column=1,row=1, sticky = 'w')
+    emp_label.grid(column=0, row=1, sticky = 'w')
+    self.emp_textbox.grid(column=1,row=1, sticky = 'w')
+    name_Label.grid(column=0, row = 2, sticky = 'w')
+    self.name_Textbox.grid(column = 1, row = 2, sticky = 'w')
+    
     self.populateFields()
-    self.create_List_Of_Entries(self.initials_textbox, "test")
-    """
-    -Split the name of the entry widget using '.' delimiter.
-    -Take key value of key.lower() and match it against a list of split entry widget names.
-    -Create a dict using the format: 'key.title()' : entry_Widget.get()
-    -Put this function into the parent class.
-    -Goal is to create a dict of 'User' settings and return it.
-    -This will apply to all user data to help manage the logic of future endeavors.
-    
-    
-    
-    """
-  def create_List_Of_Entries(self, *args):
-    name = self.initials_textbox
-    print(str(name))
+
   def populateFields(self):
-    items = self.user_data
+    items = self.setting_data
     self.initials.set(items['Initials'])
     self.employeeNum.set(items['Emp_Num'])
+    self.name.set(items['Name'])
   
     
 class null_Settings_TEST(base_settings):
@@ -331,12 +369,17 @@ class null_Settings_TEST(base_settings):
     ############################
     
     self.setting_Attribute = "NULL" #name of the setting
-    self.user_data = self.config.return_Specified_Setting(self.setting_Attribute)
+    self.setting_data = self.config.return_Specified_Setting(self.setting_Attribute)
     
     ############################
     test = tk.Label(self.form, text = "Placeholder for debugging")
+    test_box = tk.Entry(self.form, width = 10, name = 'null_value')
     
     test.grid()
+    test_box.grid()
+    
+    self.create_Dict_Of_Widgets(test_box)
+
     
     
   
